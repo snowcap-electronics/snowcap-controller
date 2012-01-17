@@ -14,7 +14,7 @@ Must have:
 * Stat (wlan signal, uptime, etc.) sending to controller.
 * Implement "connection lost". I.e. turn off video etc. bandwidth
   consuming and wait for new connection.
-* Send camera controls (x/y servo states) to slave using the sendValue().
+* Send servo commands to the Control board from the slave process.
 * Implement a GUI for setting servo limits.
 * Fix compilation warnings in netrelay.c
 

@@ -53,6 +53,9 @@ class Controller : public QApplication
   void updateUptime(int seconds);
   void updateLoadAvg(float avg);
   void updateWlan(int percent);
+  void updateCamera(double x_percent, double y_percent);
+  void updateCameraX(int degree);
+  void updateCameraY(int degree);
   void updateStatus(quint8 status);
   void clickedEnableVideo(bool enabled);
   void selectedVideoSource(int index);

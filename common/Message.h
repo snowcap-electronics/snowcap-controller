@@ -48,6 +48,14 @@
 #define MSG_SUBTYPE_NONE              0
 #define MSG_SUBTYPE_ENABLE_VIDEO      1
 #define MSG_SUBTYPE_VIDEO_SOURCE      2
+#define MSG_SUBTYPE_PWM1              11
+#define MSG_SUBTYPE_PWM2              12
+#define MSG_SUBTYPE_PWM3              13
+#define MSG_SUBTYPE_PWM4              14
+#define MSG_SUBTYPE_PWM5              15
+#define MSG_SUBTYPE_PWM6              16
+#define MSG_SUBTYPE_PWM7              17
+#define MSG_SUBTYPE_PWM8              18
 
 // Byte offsets inside a message
 #define TYPE_OFFSET_CRC               0    // 16 bit CRC

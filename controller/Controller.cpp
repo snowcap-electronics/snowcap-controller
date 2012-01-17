@@ -326,6 +326,7 @@ void Controller::connect(QString host, quint16 port)
   QObject::connect(transmitter, SIGNAL(status(quint8)), this, SLOT(updateStatus(quint8)));
   QObject::connect(transmitter, SIGNAL(networkRate(int, int, int, int)), this, SLOT(updateNetworkRate(int, int, int, int)));
   QObject::connect(transmitter, SIGNAL(value(quint8, quint16)), this, SLOT(updateValue(quint8, quint16)));
+  QObject::connect(vr, SIGNAL(pos(double, double)), this, SLOT(updateCamera(double, double)));
 
   // Send ping every second (unless other high priority packet are sent)
   transmitter->enableAutoPing(true);
@@ -392,6 +393,86 @@ void Controller::updateWlan(int percent)
   if (labelWlan) {
 	labelWlan->setText(QString::number(percent));
   }
+}
+
+
+
+void Controller::updateCamera(double x_percent, double y_percent)
+{
+  qDebug() << "in" << __FUNCTION__ << ", precents (X Y):" << x_percent << y_percent;
+
+  // Convert percents to degrees (+-90) and reverse
+  int cameraX = (int)(180 * x_percent);
+  int cameraY = (int)(180 * y_percent);
+
+  cameraX = 180 - cameraX;
+  cameraY = 180 - cameraY;
+
+  cameraX -= 90;
+  cameraY -= 90;
+
+  // Full futy cycle in percents x100. Servo min = 5%, max = 10% (1-2ms)
+  quint16 pwm1 = (quint16)((5 + (x_percent * 100) / (double)20) * 100);
+  quint16 pwm2 = (quint16)((5 + (y_percent * 100) / (double)20) * 100);
+
+  qDebug() << "in" << __FUNCTION__ << ", duty cycle (X Y):" << pwm1 << pwm2;
+
+  // Revert the slider positions
+  horizSlider->setSliderPosition(cameraX * -1);
+  vertSlider->setSliderPosition(cameraY * -1);
+
+  transmitter->sendValue(MSG_SUBTYPE_PWM1, pwm1);
+  transmitter->sendValue(MSG_SUBTYPE_PWM2, pwm2);
+}
+
+
+
+void Controller::updateCameraX(int degree)
+{
+  qDebug() << "in" << __FUNCTION__ << ", degree:" << degree;
+
+  if (degree > 90) {
+	degree = 90;
+  }
+  if (degree < -90) {
+	degree = -90;
+  }
+
+  // Reverse the direction
+  degree *= -1;
+
+  // Convert -90 - 90 degrees to 0 - 10%, scale to 0-500, shift to range 500 - 1000
+  quint16 pwm = (quint16)((degree + 90) * ((5*100)/(double)180) + 5*100);
+
+  qDebug() << "in" << __FUNCTION__ << ", pwm:" << pwm;
+
+  // Full futy cycle in percents x100. Servo min = 5%, max = 10% (1-2ms)
+  transmitter->sendValue(MSG_SUBTYPE_PWM1, pwm);
+}
+
+
+
+void Controller::updateCameraY(int degree)
+{
+  qDebug() << "in" << __FUNCTION__ << ", degree:" << degree;
+
+  if (degree > 90) {
+	degree = 90;
+  }
+  if (degree < -90) {
+	degree = -90;
+  }
+
+  // Reverse the direction
+  degree *= -1;
+
+  // Convert -90 - 90 degrees to 0 - 10%, scale to 0-500, shift to range 500 - 1000
+  quint16 pwm = (quint16)((degree + 90) * ((5*100)/(double)180) + 5*100);
+
+  qDebug() << "in" << __FUNCTION__ << ", pwm:" << pwm;
+
+  // Full futy cycle in percents x100. Servo min = 5%, max = 10% (1-2ms)
+  transmitter->sendValue(MSG_SUBTYPE_PWM2, pwm);
 }
 
 

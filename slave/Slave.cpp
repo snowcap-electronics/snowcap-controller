@@ -183,6 +183,12 @@ void Slave::updateValue(quint8 type, quint16 value)
   case MSG_SUBTYPE_VIDEO_SOURCE:
 	vs->setVideoSource(value);
 	break;
+  case MSG_SUBTYPE_PWM1:
+	qDebug() << "in" << __FUNCTION__ << ", PWM1:" << type << ", percent:" << value/(double)100;
+	break;
+  case MSG_SUBTYPE_PWM2:
+	qDebug() << "in" << __FUNCTION__ << ", PWM2:" << type << ", percent:" << value/(double)100;
+	break;
   default:
 	qWarning("%s: Unknown type: %d", __FUNCTION__, type);
   }

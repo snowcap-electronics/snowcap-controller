@@ -35,7 +35,7 @@
 
 Slave::Slave(int &argc, char **argv):
   QCoreApplication(argc, argv), transmitter(NULL), stats(NULL),
-  vs(NULL), status(0), hardware(NULL)
+  vs(NULL), status(0), hardware(NULL), cb(NULL)
 {
   stats = new QList<int>;
 }
@@ -103,6 +103,16 @@ bool Slave::init(void)
   } else {
 	qCritical("Failed to load plugin: %s", pluginLoader.errorString().toUtf8().data());
 	qCritical("Search path: %s", this->libraryPaths().join(",").toUtf8().data());
+  }
+
+  // FIXME: get serial device path from hardware plugin?
+  cb = new ControlBoard("/dev/ttyUSB0");
+  if (!cb->init()) {
+	qCritical("Failed to initialize ControlBoard");
+	// CHECKME: to return false or not to return false (and do clean up)?
+  } else {
+	// Set ControlBoard frequency to 50Hz to match standard servos
+	cb->setPWMFreq(50);
   }
 
   return true;
@@ -184,10 +194,12 @@ void Slave::updateValue(quint8 type, quint16 value)
 	vs->setVideoSource(value);
 	break;
   case MSG_SUBTYPE_PWM1:
-	qDebug() << "in" << __FUNCTION__ << ", PWM1:" << type << ", percent:" << value/(double)100;
+	qDebug() << "in" << __FUNCTION__ << ", PWM1 percent:" << value/(double)100;
+	cb->setPWMDuty(CB_PWM1, value);
 	break;
   case MSG_SUBTYPE_PWM2:
-	qDebug() << "in" << __FUNCTION__ << ", PWM2:" << type << ", percent:" << value/(double)100;
+	qDebug() << "in" << __FUNCTION__ << ", PWM2 percent:" << value/(double)100;
+	cb->setPWMDuty(CB_PWM2, value);
 	break;
   default:
 	qWarning("%s: Unknown type: %d", __FUNCTION__, type);

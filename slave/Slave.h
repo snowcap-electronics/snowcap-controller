@@ -30,6 +30,7 @@
 #include "Transmitter.h"
 #include "Hardware.h"
 #include "VideoSender.h"
+#include "ControlBoard.h"
 
 #include <QCoreApplication>
 #include <QTimer>
@@ -56,6 +57,7 @@ class Slave : public QCoreApplication
   VideoSender *vs;
   quint8 status;
   Hardware *hardware;
+  ControlBoard *cb;
 };
 
 #endif

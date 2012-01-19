@@ -63,6 +63,8 @@ class Controller : public QApplication
   void updateValue(quint8 type, quint16 value);
 
  private:
+  void throttleSend(int pwm, quint16 duty);
+
   Transmitter *transmitter;
   VideoReceiver *vr;
 
@@ -82,7 +84,7 @@ class Controller : public QApplication
 
   QLabel *labelRx;
   QLabel *labelTx;
-
+  QTimer pwmTimers[3];
 };
 
 #endif

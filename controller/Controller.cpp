@@ -43,7 +43,10 @@ Controller::Controller(int &argc, char **argv):
   buttonEnableVideo(NULL), comboboxVideoSource(NULL),
   labelRx(NULL), labelTx(NULL)
 {
-
+  for(int i = 0; i < 3; ++i) {
+	pwmTimers[i].setSingleShot(true);
+	pwmTimers[i].stop();
+  }
 }
 
 
@@ -421,8 +424,8 @@ void Controller::updateCamera(double x_percent, double y_percent)
   horizSlider->setSliderPosition(cameraX * -1);
   vertSlider->setSliderPosition(cameraY * -1);
 
-  transmitter->sendValue(MSG_SUBTYPE_PWM1, pwm1);
-  transmitter->sendValue(MSG_SUBTYPE_PWM2, pwm2);
+  throttleSend(MSG_SUBTYPE_PWM1, pwm1);
+  throttleSend(MSG_SUBTYPE_PWM2, pwm2);
 }
 
 
@@ -447,7 +450,7 @@ void Controller::updateCameraX(int degree)
   qDebug() << "in" << __FUNCTION__ << ", pwm:" << pwm;
 
   // Full futy cycle in percents x100. Servo min = 5%, max = 10% (1-2ms)
-  transmitter->sendValue(MSG_SUBTYPE_PWM1, pwm);
+  throttleSend(MSG_SUBTYPE_PWM1, pwm);
 }
 
 
@@ -472,7 +475,28 @@ void Controller::updateCameraY(int degree)
   qDebug() << "in" << __FUNCTION__ << ", pwm:" << pwm;
 
   // Full futy cycle in percents x100. Servo min = 5%, max = 10% (1-2ms)
-  transmitter->sendValue(MSG_SUBTYPE_PWM2, pwm);
+  throttleSend(MSG_SUBTYPE_PWM2, pwm);
+}
+
+
+
+/*
+ * Don't send more that 100 messages per second per PWM
+ */
+void Controller::throttleSend(int pwm, quint16 duty)
+{
+  // Ugly, assume MSG_SUBTYPE_PWMX defines are all MSG_SUBTYPE_PWM1 + X - 1
+  int pwm_index = pwm - MSG_SUBTYPE_PWM1;
+
+  qDebug() << __FUNCTION__ << pwmTimers[pwm_index].timerId();
+  qDebug() << __FUNCTION__ << "isActive:" << pwmTimers[pwm_index].isActive();
+
+  if (pwmTimers[pwm_index].isActive()) {
+	return;
+  } else {
+	pwmTimers[pwm_index].start(30);
+  }
+  transmitter->sendValue(pwm, duty);
 }
 
 

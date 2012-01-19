@@ -96,7 +96,7 @@ void Controller::createGUI(void)
   horizSlider->setMinimum(-90);
   horizSlider->setMaximum(+90);
   horizSlider->setSliderPosition(0);
-  QObject::connect(horizSlider, SIGNAL(sliderMoved(int)), this, SLOT(updateCameraX(int)));
+  QObject::connect(horizSlider, SIGNAL(valueChanged(int)), this, SLOT(updateCameraX(int)));
   screenVert->addWidget(horizSlider);
 
   vr = new VideoReceiver(window);
@@ -107,7 +107,7 @@ void Controller::createGUI(void)
   vertSlider->setMaximum(+90);
   vertSlider->setSliderPosition(0);
   mainHoriz->addWidget(vertSlider);
-  QObject::connect(vertSlider, SIGNAL(sliderMoved(int)), this, SLOT(updateCameraY(int)));
+  QObject::connect(vertSlider, SIGNAL(valueChanged(int)), this, SLOT(updateCameraY(int)));
 
   // Grid layoyt for the slave stats
   QGridLayout *grid = new QGridLayout();

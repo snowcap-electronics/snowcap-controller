@@ -95,7 +95,7 @@ void ControlBoard::readPendingSerialData(void)
     // FIXME: try to avoid unneccessary mallocing
     serialData.append(serialPort.readAll());
 
-    //qDebug() << "in" << __FUNCTION__ << ", data size: " << data.size();
+    //qDebug() << "in" << __FUNCTION__ << ", data size: " << serialData.size();
 
   }
 
@@ -167,7 +167,7 @@ void ControlBoard::parseSerialData(void)
 	return;
   }
 
-  // TODO: validate message
+  // Check for a full message ending to \n
   if (serialData.at(serialData.size() - 1) == '\n') {
 	qDebug() << __FUNCTION__ << "have msg:" << serialData.data();
   } else {
@@ -175,7 +175,21 @@ void ControlBoard::parseSerialData(void)
 	return;
   }
 
-  // TODO: handle message
+  // Parse temperature
+  if (serialData.startsWith("t: ")) {
+	serialData.remove(0,3);
+	int adc = serialData.trimmed().toInt();
+
+	// Temperature (in 'C) = {(VSENSE – V25) / Avg_Slope} + 25
+	// V25 = 0.76V for F2
+	// Avg_Slope = 2.5 mV/'C for F2
+
+	float vsense = (3.3/((float)4095)) * adc;
+	double temp = (vsense-0.76)/0.0025 + 25;
+	qDebug() << __FUNCTION__ << "Temperature:" << temp;
+
+  }
+
   serialData.clear();
 }
 
